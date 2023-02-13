@@ -1,13 +1,24 @@
 [[source]]
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
+name = "github_user_dossier"
 
 [packages]
 requests = "*"
 pytest = "*"
+pre-commit = "*"
 
 [dev-packages]
+mypy = "*"
+safety = "*"
+pre-commit = "*"
+coverage = "*"
+pylint = "*"
+black = "*"
+isort = "*"
+flake8 = "*"
+autopep8 = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.11"
