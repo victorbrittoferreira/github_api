@@ -7,6 +7,7 @@ name = "github_user_dossier"
 requests = "*"
 pytest = "*"
 pre-commit = "*"
+black = "*"
 
 [dev-packages]
 mypy = "*"
