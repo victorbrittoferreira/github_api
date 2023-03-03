@@ -1,36 +1,23 @@
-from typing import Tuple
-from src.entities.github_api_client import GitHubClient
-from requests.exceptions import HTTPError
 import logging
-import src.services.dump_data_processor as services
+
+from requests import HTTPError
+from src.use_cases.github_profile_processor import GitHubProfileProcessor
+from config import GITHUB_USER_NAME
 
 logger = logging.getLogger(__name__)
 
 
-def user_data_grouping(user_name: str) -> Tuple:
-    github_client = GitHubClient(user_name)
+def pursuit_profile(user_name: str) -> None:
+    profiled_user = GitHubProfileProcessor(user_name)
     try:
-        repository_list = github_client.get_repositories_list()
-        user_basic_profile_data = github_client.get_user_data()
-    except HTTPError as excepition:
-        logger.error(
-            "request_failed",
-            extra={
-                "response_error_message": str(excepition),
-                "url": github_client.user_url,
-            },
-        )
-        raise
-    return user_basic_profile_data, repository_list
+        logger.info("requesting_user_data_in_github")
+        profiled_user.group_user_data()
 
+        logger.info("successful_request")
 
-def dump_user_data(user_data) -> None:
-    try:
-        data_sifted = services.data_sift(user_data)
-        services.write_github_user_file(data_sifted)
-    except Exception as exception:
-        logger.error(
-            "failed_writing_data",
-            extra={"error_message": str(exception)},
-        )
+        logger.info("wrinting_data_in_txt_file")
+        profiled_user.dump_user_data()
+
+        logger.info("successful_procedure_concluded")
+    except (KeyError, IndexError, PermissionError, HTTPError):
         raise

@@ -8,6 +8,7 @@ requests = "*"
 pytest = "*"
 pre-commit = "*"
 black = "*"
+coverage = "*"
 
 [dev-packages]
 mypy = "*"
