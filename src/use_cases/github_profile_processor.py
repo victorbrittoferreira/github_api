@@ -2,6 +2,7 @@ from typing import Tuple
 from src.entities.github_api_client import GitHubClient
 from requests.exceptions import HTTPError
 import logging
+from src.entities.user_github import GroupedUserData
 import src.services.dump_data_processor as services
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,8 @@ class GitHubProfileProcessor:
     def user_data(self) -> None:
         return None
 
-    def group_user_data(self) -> Tuple:
+    def group_user_data(self) -> GroupedUserData:
+        # def group_user_data(self) -> Tuple:
         """
         This returns grouped user data, basic info and repositories
 
