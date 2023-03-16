@@ -5,22 +5,19 @@ name = "github_user_dossier"
 
 [packages]
 requests = "*"
-pytest = "*"
-pre-commit = "*"
-black = "*"
-coverage = "*"
+python-dotenv = "*"
 
 [dev-packages]
+pytest = "*"
+coverage = "*"
 mypy = "*"
 safety = "*"
 pre-commit = "*"
-coverage = "*"
 pylint = "*"
 black = "*"
 isort = "*"
 flake8 = "*"
 autopep8 = "*"
-pytest = "*"
 
 [requires]
 python_version = "3.11"
