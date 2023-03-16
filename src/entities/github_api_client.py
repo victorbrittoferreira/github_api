@@ -4,6 +4,8 @@ from requests.exceptions import HTTPError
 
 import logging
 
+from src.entities.user_github import Repositories, UserBasicData
+
 logger = logging.getLogger(__name__)
 
 
@@ -41,7 +43,7 @@ class GitHubClient:
         return f"{self._BASE_URL}/{self.user_name}"
 
     # TODO: fazer o schema
-    def get_repositories_list(self) -> List | HTTPError:
+    def get_repositories_list(self) -> Repositories | HTTPError:
         """
         This returns the user's repositories list.
 
@@ -64,10 +66,12 @@ class GitHubClient:
         """
         url = f"{self._BASE_URL}/{self.user_name}/repos"
         try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return response.json()
-            response.raise_for_status()
+            attempts = 3
+            for _ in range(attempts):
+                response = requests.get(url)
+                if response.status_code == 200:
+                    return response.json()
+                response.raise_for_status()
         except HTTPError as error:
             logger.exception(
                 "request_failed",
@@ -79,7 +83,7 @@ class GitHubClient:
             raise
 
     # TODO: fazer o schema
-    def get_user_data(self) -> Dict | HTTPError:
+    def get_user_data(self) -> UserBasicData | HTTPError:
         """
         This returns the user's basic personal profile info.
 
@@ -103,10 +107,12 @@ class GitHubClient:
                 Raises when an HTTP error occur in the server or client side.
         """
         try:
-            response = requests.get(self.user_url)
-            if response.status_code == 200:
-                return response.json()
-            response.raise_for_status()
+            attempts = 3
+            for _ in range(attempts):
+                response = requests.get(self.user_url)
+                if response.status_code == 200:
+                    return response.json()
+                response.raise_for_status()
         except HTTPError as error:
             logger.exception(
                 "request_failed",
