@@ -1,0 +1,9 @@
+version: "3.11"
+
+services:
+  github_api:
+    image: github_api_service:0.1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
