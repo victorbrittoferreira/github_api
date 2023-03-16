@@ -1,10 +1,12 @@
 from typing import Dict, Tuple
 import logging
 
+from src.entities.user_github import DataSifted
+
 logger = logging.getLogger(__name__)
 
 
-def data_sift(user_data: Tuple) -> Dict:
+def data_sift(user_data: Tuple) -> DataSifted:
     """
     This sift the raw user data to intended user data
 
@@ -59,6 +61,7 @@ def write_github_user_file(github_user_data: Dict) -> None:
         file_name = f"{github_user_data['login']}.txt"
         del github_user_data['login']
         with open(file_name, "w") as _file:
+            # with open(f"/output/{file_name}", "w") as _file:
             _file.write(str(github_user_data))
     except (KeyError, PermissionError) as error:
         logger.exception(
