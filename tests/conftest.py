@@ -18,6 +18,16 @@ invalid_basic_types = [
 
 
 @pytest.fixture(scope="function")
+def valid_username():
+    return "victorbrittoferreira"
+
+
+@pytest.fixture(scope="function")
+def valid_username_id():
+    return 34899711
+
+
+@pytest.fixture(scope="function")
 def valid_input_write_github_user_file():
     return {
         "login": "victorbrittoferreira",
