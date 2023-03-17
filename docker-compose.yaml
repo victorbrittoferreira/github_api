@@ -4,6 +4,6 @@ services:
   github_api:
     image: github_api_service:0.1
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile
     restart: always

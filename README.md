@@ -46,13 +46,13 @@ docker run -ti github_api_service:0.1
 
 ## How to use example
 ```text
-You must create a .env file in the project`s root folder with a constant called GITHUB_USER_NAME=username. 
+You must create a .env file in the project`s root/app folder with a constant called GITHUB_USER_NAME=username. 
 
 If you don`t creat this, the system will require a nickname in the console input.
 >>>Insert the user name:
 ...username
 
-You will notice a .txt file created in project`s root folder called username.txt contening user data.
+You will notice a .txt file created in project`s root/app folder called username.txt contening user data.
 ```
 >[Back to sumary](#summary)
 ***
