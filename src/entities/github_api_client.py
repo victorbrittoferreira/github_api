@@ -1,4 +1,3 @@
-from typing import Dict, List
 import requests
 from requests.exceptions import HTTPError
 
@@ -42,14 +41,13 @@ class GitHubClient:
     def user_url(self) -> str:
         return f"{self._BASE_URL}/{self.user_name}"
 
-    # TODO: fazer o schema
     def get_repositories_list(self) -> Repositories | HTTPError:
         """
         This returns the user's repositories list.
 
         Returns:
         --------
-            - List: If the request was successful, this returns 
+            - Repositories: If the request was successful, this returns 
             a list of users repositories
 
         Example:
@@ -82,15 +80,14 @@ class GitHubClient:
             )
             raise
 
-    # TODO: fazer o schema
     def get_user_data(self) -> UserBasicData | HTTPError:
         """
         This returns the user's basic personal profile info.
 
         Returns:
         --------
-            - Dict: If the request was successful, this returns 
-            a Dict of basic profile info,like: name, url, public_repositories,
+            - UserBasicData: If the request was successful, this returns 
+            a cict of basic profile info,like: name, url, public_repositories,
             followers, following.
 
 

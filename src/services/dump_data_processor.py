@@ -1,22 +1,23 @@
 from typing import Dict, Tuple
 import logging
 
-from src.entities.user_github import DataSifted
+from src.entities.user_github import DataSifted, GroupedUserData
 
 logger = logging.getLogger(__name__)
 
 
-def data_sift(user_data: Tuple) -> DataSifted:
+# TODO: entitie de input
+def data_sift(user_data: GroupedUserData) -> DataSifted:
     """
     This sift the raw user data to intended user data
 
     Args:
     -----
-        - user_data (Tuple): A tuple of user basic info and repositorie
+        - user_data (GroupedUserData): A tuple of user basic info and repositorie
 
     Return:
     -------
-        - Dict: Sifted user data
+        - DataSifted: Sifted user data
 
     Example:
     --------
@@ -33,7 +34,7 @@ def data_sift(user_data: Tuple) -> DataSifted:
                 repository["name"] for repository in user_data[1]
             ],
         }
-    except (KeyError, IndexError) as error:
+    except (KeyError, IndexError, TypeError) as error:
         logger.exception(
             "failed_writing_data",
             extra={"error_message": str(error)},
@@ -43,12 +44,13 @@ def data_sift(user_data: Tuple) -> DataSifted:
     return user_summary
 
 
-def write_github_user_file(github_user_data: Dict) -> None:
+# TODO: entitie de input
+def write_github_user_file(github_user_data: DataSifted) -> None:
     """This dump the user data into a .txt file
 
     Args:
     -----
-        github_user_data (Dict): Intended user data
+        github_user_data (DataSifted): Intended user data
 
     Return:
     -------
@@ -61,9 +63,8 @@ def write_github_user_file(github_user_data: Dict) -> None:
         file_name = f"{github_user_data['login']}.txt"
         del github_user_data['login']
         with open(file_name, "w") as _file:
-            # with open(f"/output/{file_name}", "w") as _file:
             _file.write(str(github_user_data))
-    except (KeyError, PermissionError) as error:
+    except (KeyError, TypeError, PermissionError) as error:
         logger.exception(
             "failed_writing_data",
             extra={"error_message": str(error)},

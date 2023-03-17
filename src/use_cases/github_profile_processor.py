@@ -35,12 +35,11 @@ class GitHubProfileProcessor:
         return None
 
     def group_user_data(self) -> GroupedUserData:
-        # def group_user_data(self) -> Tuple:
         """
         This returns grouped user data, basic info and repositories
 
         Returns:
-            - Tuple: If the requestes were successful, this returns 
+            - GroupedUserData: If the requestes were successful, this returns 
             a tuple of basic profile info,like: name, url, public_repositories,
             followers, following.
 
@@ -87,7 +86,7 @@ class GitHubProfileProcessor:
         try:
             data_sifted = services.data_sift(self.user_data)
             services.write_github_user_file(data_sifted)
-        except (KeyError, IndexError, PermissionError):
+        except (KeyError, TypeError, IndexError, PermissionError):
             raise
 
     def __str__(self) -> str:
