@@ -66,9 +66,9 @@ class GitHubClient:
         try:
             attempts = 3
             for _ in range(attempts):
-                response = requests.get(url)
+                response = requests.get(url, timeout=10)
                 if response.status_code == 200:
-                    return response.json()
+                    data = response.json()
                 response.raise_for_status()
         except HTTPError as error:
             logger.exception(
@@ -79,6 +79,8 @@ class GitHubClient:
                 },
             )
             raise
+
+        return data
 
     def get_user_data(self) -> UserBasicData | HTTPError:
         """
@@ -106,9 +108,9 @@ class GitHubClient:
         try:
             attempts = 3
             for _ in range(attempts):
-                response = requests.get(self.user_url)
+                response = requests.get(self.user_url, timeout=10)
                 if response.status_code == 200:
-                    return response.json()
+                    data = response.json()
                 response.raise_for_status()
         except HTTPError as error:
             logger.exception(
@@ -119,6 +121,8 @@ class GitHubClient:
                 },
             )
             raise
+
+        return data
 
     def __str__(self) -> str:
         return f"""

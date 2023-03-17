@@ -1,12 +1,10 @@
 import logging
-from typing import Dict, Tuple
 
 from src.entities.user_github import DataSifted, GroupedUserData
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: entitie de input
 def data_sift(user_data: GroupedUserData) -> DataSifted:
     """
     This sift the raw user data to intended user data
@@ -44,7 +42,6 @@ def data_sift(user_data: GroupedUserData) -> DataSifted:
     return user_summary
 
 
-# TODO: entitie de input
 def write_github_user_file(github_user_data: DataSifted) -> None:
     """This dump the user data into a .txt file
 
@@ -62,7 +59,7 @@ def write_github_user_file(github_user_data: DataSifted) -> None:
     try:
         file_name = f"{github_user_data['login']}.txt"
         del github_user_data["login"]
-        with open(file_name, "w") as _file:
+        with open(file_name, "w", encoding="utf-8") as _file:
             _file.write(str(github_user_data))
     except (KeyError, TypeError, PermissionError) as error:
         logger.exception(

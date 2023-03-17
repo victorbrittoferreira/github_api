@@ -1,5 +1,4 @@
 import logging
-from typing import Tuple
 
 from requests.exceptions import HTTPError
 
@@ -84,7 +83,10 @@ class GitHubProfileProcessor:
         >>> github_profile_processor = GitHubProfileProcessor(user_name)
         GitHubProfileProcessor(name=victorbrittoferreira, data=None)
         >>> github_profile_processor.dump_user_data(
-            {'login': 'victorbrittoferreira',  'url': 'https://api.github.com/users/vic..', ...},
+            {
+                'login': 'victorbrittoferreira',
+                'url': 'https://api.github.com/users/vic..',
+            ...},
             [{...}, {...}, {...}, {...}, {...}, ..]
         )
 

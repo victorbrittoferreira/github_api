@@ -87,5 +87,4 @@ def test_raises_exception_invalid_input_write_github_user_file(
 
 # TODO: permission_error
 # def test_raises_exception_for_permission_error(valid_input_write_github_user_file):
-# Test that the function raises an exception if there is a permission error when writing the file
 #   ...

@@ -5,7 +5,7 @@ from src.entities.github_api_client import GitHubClient
 from tests.conftest import invalid_basic_types
 
 
-# -------------------- GitHubClient.get_repositories_list()) --------------------------------
+# -------------------- GitHubClient.get_repositories_list()) ------------------------
 def test_get_repositories_list_returns_list(valid_username):
     # Test that the method valid data structure
     github_client = GitHubClient(valid_username)

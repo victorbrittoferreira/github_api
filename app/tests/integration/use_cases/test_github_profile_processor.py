@@ -3,7 +3,7 @@ import os.path
 
 from src.use_cases.github_profile_processor import GitHubProfileProcessor
 
-# -------------------- GitHubProfileProcessor.group_user_data() --------------------------------
+# -------------------- GitHubProfileProcessor.group_user_data() -----------------------
 
 
 def test_valid_return_group_user_data(
@@ -33,7 +33,7 @@ def test_valid_return_data_structure_group_user_data(valid_username):
     assert isinstance(result[1], list)
 
 
-# -------------------- GitHubProfileProcessor.dump_user_data() --------------------------------
+# -------------------- GitHubProfileProcessor.dump_user_data() -----------------------
 def test_create_file_name(data_grouped):
     # Test that the method create correct name txt file
     profile_processor = GitHubProfileProcessor("test")
