@@ -5,5 +5,9 @@ services:
     image: github_api_service:0.1
     build:
       context: ./app
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     restart: always
+    volumes:
+      - ./app:/app
+volumes:
+  data:

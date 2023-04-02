@@ -1,0 +1,35 @@
+# # version args
+ARG base=python
+ARG tag=3.11.1-slim-buster
+
+# pull official base image
+FROM $base:$tag
+LABEL baseimage=$base:$tag
+
+# create the appropriate directories
+WORKDIR /app
+
+# install dependencies
+# COPY /app/requirements.txt /app/
+COPY /requirements.txt /app/
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+
+#maintner
+LABEL maintainer=victorbrittoferreira@gmail.com
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1 \
+    PYTHONUNBUFFERED 1
+
+
+
+COPY run.py .
+COPY config.py .
+COPY src ./src
+COPY .env .
+
+# volume to save files
+VOLUME /data
+CMD ["python", "run.py"]
