@@ -27,7 +27,7 @@ repos:
     rev: "v3.0.0a6"
     hooks:
       - id: pylint
-        args: ["-sn", "--disable=W0511, C0114, E0401, W0706"]
+        args: ["-sn", "--disable=W0511, C0114, E0401, W0706, C0115"]
 
   - repo: https://github.com/pre-commit/mirrors-autopep8
     rev: "v2.0.2"
