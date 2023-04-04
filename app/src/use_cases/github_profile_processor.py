@@ -1,15 +1,23 @@
 import logging
+from typing import Type
 
-from requests.exceptions import HTTPError
+from requests import HTTPError
 
-import src.services.dump_data_processor as services
-from src.entities.github_api_client import GitHubClient
-from src.entities.user_github import GroupedUserData
+from src.entities.exceptions import GitHubApiRateLimitExceedeError
+from src.entities.Interfaces.git_hosting_cloud_client_interface import (
+    GitHostingCloudClientInterface,
+)
+from src.entities.Interfaces.git_profile_data_dumper_interface import (
+    GitProfileDataDumperInterface,
+)
+from src.schemas.git_profile import GroupedUserData
+from src.use_cases.exception import GitProfileDataDumperError
 
 logger = logging.getLogger(__name__)
 
 
-class GitHubProfileProcessor:
+class GitProfileProcessor:
+
     """
         This class manages the data processing of a given profile in GitHub.
     The methods cat the user data and then dump it into a .txt file
@@ -27,14 +35,35 @@ class GitHubProfileProcessor:
 
     """
 
-    __slots__ = ("user_name",)
+    __slots__ = (
+        "user_name",
+        "_git_hosting_service",
+        "_git_profile_dumper",
+        "_user_raw_data",
+    )
 
-    def __init__(self, user_name: str) -> None:
+    def __init__(
+        self,
+        user_name: str,
+        git_hosting_service: Type[GitHostingCloudClientInterface],
+        git_profile_dumper: Type[GitProfileDataDumperInterface],
+    ) -> None:
         self.user_name = user_name
+        self._git_hosting_service = git_hosting_service
+        self._git_profile_dumper = git_profile_dumper
+        self._user_raw_data = None
 
-    @property
-    def user_data(self) -> None:
-        return None
+        if not isinstance(git_hosting_service, GitHostingCloudClientInterface):
+            raise TypeError(
+                "The git_hosting_service attribute must be an instance of"
+                " subclass GitHostingCloudClientInterface."
+            )
+
+        if not isinstance(git_profile_dumper, GitProfileDataDumperInterface):
+            raise TypeError(
+                "The git_profile_dumper attribute must be an"
+                " instance of subclass GitProfileDataDumperInterface."
+            )
 
     def group_user_data(self) -> GroupedUserData:
         """
@@ -47,29 +76,35 @@ class GitHubProfileProcessor:
 
         Example:
         --------
-        >>> github_profile_processor = GitHubProfileProcessor(user_name)
-        GitHubProfileProcessor(name=victorbrittoferreira, data=None)
+        >>> github_profile_processor = GitProfileProcessor(user_name)
+        GitProfileProcessor(name=victorbrittoferreira, data=None)
         >>> github_profile_processor.group_user_data()
         (
             {'login': 'victorbrittoferreira', 'id': 34899711, 'node_id': ...},
             [[{'id': 486252178, 'node_id': 'R_kgDOHPuekg', 'name': ...]
         )
-
-
-
         """
-        github_client = GitHubClient(self.user_name)
         try:
-            repository_list = github_client.get_repositories_list()
-            user_basic_profile_data = github_client.get_user_data()
-        except HTTPError:
+            self._git_hosting_service.user_name = self.user_name
+            user_repositories = (
+                self._git_hosting_service.get_repositories_list()
+            )
+            user_basic_data = self._git_hosting_service.get_user_basic_data()
+
+            user_raw_data = GroupedUserData(
+                user_data=user_basic_data, user_repositories=user_repositories
+            )
+            self._user_raw_data = user_raw_data
+        except (HTTPError, GitHubApiRateLimitExceedeError):
+            raise
+        except Exception as error:
+            logger.exception(
+                "failed_request_user_data",
+                extra={"error_message": str(error)},
+            )
             raise
 
-        GitHubProfileProcessor.user_data = (
-            user_basic_profile_data,
-            repository_list,
-        )
-        return user_basic_profile_data, repository_list
+        return user_basic_data
 
     def dump_user_data(self) -> None:
         """
@@ -80,8 +115,8 @@ class GitHubProfileProcessor:
 
         Example:
         --------
-        >>> github_profile_processor = GitHubProfileProcessor(user_name)
-        GitHubProfileProcessor(name=victorbrittoferreira, data=None)
+        >>> github_profile_processor = GitProfileProcessor(user_name)
+        GitProfileProcessor(name=victorbrittoferreira, data=None)
         >>> github_profile_processor.dump_user_data(
             {
                 'login': 'victorbrittoferreira',
@@ -92,20 +127,25 @@ class GitHubProfileProcessor:
 
         """
         try:
-            data_sifted = services.data_sift(self.user_data)
-            services.write_github_user_file(data_sifted)
-        except (KeyError, TypeError, IndexError, PermissionError):
+            self._git_profile_dumper.user_raw_data = self._user_raw_data
+            self._git_profile_dumper.extract_user_summary()
+            self._git_profile_dumper.dump_user_data()
+
+        except GitProfileDataDumperError:
+            raise
+
+        except Exception as error:
+            logger.exception(
+                "failed_writing_user_data",
+                extra={"error_message": str(error)},
+            )
             raise
 
     def __str__(self) -> str:
         return f"""
         GitHub Profile Processor:
-            Profile name: {self.user_name}
-            Profile data: {self.user_data}
+            Profile user_name: {self.user_name}
         """
 
     def __repr__(self) -> str:
-        return (
-            f"GitHubProfileProcessor(name={self.user_name}, "
-            f"data={self.user_data})"
-        )
+        return f"GitProfileProcessor(user_name={self.user_name})"
