@@ -3,52 +3,169 @@ import logging
 import requests
 from requests.exceptions import HTTPError
 
-from src.entities.user_github import Repositories, UserBasicData
+from src.entities.exceptions import GitHubApiRateLimitExceedeError
+from src.entities.Interfaces.git_hosting_cloud_client_interface import (
+    GitHostingCloudClientInterface,
+)
+from src.schemas.git_profile import UserBasicData, UserRepositories
 
 logger = logging.getLogger(__name__)
 
 
-class GitHubClient:
+class GitHubClient(GitHostingCloudClientInterface):
+
     """
-    Uses requests lib to access data from a given user by GitHub API.
-    This class has methods to catch basic data and a list of repositories
+    A class that uses the requests library to access data from a user on GitHub.
+    This class has methods to retrieve basic data and a list of repositories
     from the user.
 
-    Attributes
-    ----------
-        - _BASE_URL : str
-            GitHub base api url
+
+    Args:
+    user_name : str
+        The username of the GitHub user.
 
         - user_name: str
             User`s name
 
-    Methods
-    -------
-        - get_repositories_list : List | HTTPError
+    Attributes:
+    _user_basic_data(UserBasicData): A dict of user basic info
+    _user_repositories(UserRepositories): A list of user repositories.
+    Methods:
+    - get_user_basic_data() -> UserBasicData:
+        Returns the user's basic personal profile info.
 
-        - get_user_data : Dict | HTTPError
+    - get_repositories_list() -> UserRepositories:
+        Returns the user's repositories list.
 
+    Raises:
+    - HTTPError:
+        If an HTTP error occurs on the server or client side.
+
+    - GitHubApiRateLimitExceedeError:
+        If the rate limit of the GitHub API has been exceeded.
+
+    Example
+    >>> github_client = GitHubClient('victorbrittoferreira')
+    >>> github_client.get_user_basic_data()
+    {'login': 'victorbrittoferreira', 'id': 34899711,
+     'node_id': 'MDQ6VXNlcjM0ODk5NzEx', ...}
+    >>> github_client.get_repositories_list()
+    [{'id': 486252178, 'node_id': 'R_kgDOHPuekg', 'name': 'angular_todo_list',
+      'full_name': 'victorbrittoferreira..._todo_list', ...}]
     """
 
     __slots__ = ("user_name",)
 
     _BASE_URL = "https://api.github.com/users"
 
-    def __init__(self, user_name: str) -> None:
+    def __init__(self, user_name: str = None) -> None:
         self.user_name = user_name
+        self._user_basic_data = None
+        self._user_repositories = None
 
     @property
     def user_url(self) -> str:
+        """
+        Returns the URL of the GitHub user profile.
+        """
         return f"{self._BASE_URL}/{self.user_name}"
 
-    def get_repositories_list(self) -> Repositories | HTTPError:
+    @staticmethod
+    def _request_user_profile_data(
+        url: str,
+    ) -> UserRepositories | UserBasicData:
         """
-        This returns the user's repositories list.
+        Sends an HTTP GET request to the specified URL and returns the response
+        as a dictionary of user profile data.
+
+        Parameters
+        ----------
+        url : str
+            The URL to send the GET request to.
+
+        Returns
+        -------
+        Union[UserRepositories, UserBasicData]:
+            A dictionary of user profile data.
+
+        Raises
+        ------
+        HTTPError:
+            If an HTTP error occurs on the server or client side.
+
+        GitHubApiRateLimitExceedeError:
+            If the rate limit of the GitHub API has been exceeded.
+        """
+        attempts = 3
+        for attempt in range(1, attempts):
+            try:
+                response = requests.get(url, timeout=10)
+                if response.status_code == 200:
+                    raw_data = response.json()
+
+                if (
+                    response.status_code == 403
+                    and "rate limit exceeded" in response.text  # noqa: W503
+                ):
+                    raise GitHubApiRateLimitExceedeError(
+                        "GitHub API rate limit exceeded"
+                    )
+
+                if attempt == attempts:
+                    logger.debug("requesting_user_data_in_hosting_cloud_fail")
+                    response.raise_for_status()
+
+            except (HTTPError, GitHubApiRateLimitExceedeError) as error:
+                logger.exception(
+                    "request_failed",
+                    extra={
+                        "response_error_message": str(error),
+                        "url": url,
+                    },
+                )
+                raise
+        return raw_data
+
+    def get_user_basic_data(self) -> UserBasicData:
+        """
+        Retrieves the user's basic personal profile info from the GitHub API.
+
+        Returns
+        -------
+        UserBasicData:
+            A dictionary containing the user's basic personal profile info.
+
+        Raises:
+        ------
+            - HTTPError:
+                Raises when an HTTP error occur in the server or client side.
+
+        Example:
+        --------
+            >>> github_client = GitHubClient('victorbrittoferreira')
+            >>> github_client.get_user_basic_data()
+            {login': 'victorbrittoferreira', 'id': 34899711,
+             'node_id': 'MDQ6VXNlcjM0ODk5NzEx', ...}
+        """
+        try:
+            user_basic_raw_data = self._request_user_profile_data(
+                self.user_url
+            )
+            validated_user_basic_raw_data = UserBasicData(user_basic_raw_data)
+            self._user_basic_data = validated_user_basic_raw_data
+        except (HTTPError, GitHubApiRateLimitExceedeError):
+            raise
+
+        return validated_user_basic_raw_data
+
+    def get_repositories_list(self) -> UserRepositories:
+        """
+        Retrieves the user's repositories profile info from the GitHub API.
 
         Returns:
         --------
-            - Repositories: If the request was successful, this returns
-            a list of users repositories
+            - UserRepositories:
+            A list containing the user's repositories info.
 
         Example:
         --------
@@ -64,71 +181,21 @@ class GitHubClient:
         """
         url = f"{self._BASE_URL}/{self.user_name}/repos"
         try:
-            attempts = 3
-            for _ in range(attempts):
-                response = requests.get(url, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-                response.raise_for_status()
-        except HTTPError as error:
-            logger.exception(
-                "request_failed",
-                extra={
-                    "response_error_message": str(error),
-                    "url": url,
-                },
+            user_repositories_raw_data = self._request_user_profile_data(url)
+            valited_user_repositories_raw_data = UserRepositories(
+                user_repositories_raw_data
             )
+            self._user_repositories = valited_user_repositories_raw_data
+        except (HTTPError, GitHubApiRateLimitExceedeError):
             raise
 
-        return data
-
-    def get_user_data(self) -> UserBasicData | HTTPError:
-        """
-        This returns the user's basic personal profile info.
-
-        Returns:
-        --------
-            - UserBasicData: If the request was successful, this returns
-            a cict of basic profile info,like: name, url, public_repositories,
-            followers, following.
-
-
-        Example:
-        --------
-            >>> github_client = GitHubClient('victorbrittoferreira')
-            >>> github_client.get_user_data()
-            {login': 'victorbrittoferreira', 'id': 34899711,
-             'node_id': 'MDQ6VXNlcjM0ODk5NzEx', ...}
-
-        Raises:
-        ------
-            - HTTPError:
-                Raises when an HTTP error occur in the server or client side.
-        """
-        try:
-            attempts = 3
-            for _ in range(attempts):
-                response = requests.get(self.user_url, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-                response.raise_for_status()
-        except HTTPError as error:
-            logger.exception(
-                "request_failed",
-                extra={
-                    "response_error_message": str(error),
-                    "url": self.user_url,
-                },
-            )
-            raise
-
-        return data
+        return valited_user_repositories_raw_data
 
     def __str__(self) -> str:
         return f"""
         GitHub Client:
-            Client name: {self.user_name}
+            Client user_name: {self.user_name}
         """
 
     def __repr__(self) -> str:
-        return f"GitHubClient(name={self.user_name})"
+        return f"GitHubClient(user_name={self.user_name})"
