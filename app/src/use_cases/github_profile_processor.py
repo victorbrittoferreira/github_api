@@ -41,14 +41,23 @@ class GitProfileProcessor:
         "_git_profile_dumper",
         "_user_raw_data",
     )
+    __slots__ = (
+        "user_name",
+        "_git_hosting_service",
+        "_git_profile_dumper",
+        "_user_raw_data",
+        "access_token",
+    )
 
     def __init__(
         self,
         user_name: str,
+        access_token: str,
         git_hosting_service: Type[GitHostingCloudClientInterface],
         git_profile_dumper: Type[GitProfileDataDumperInterface],
     ) -> None:
         self.user_name = user_name
+        self.access_token = access_token
         self._git_hosting_service = git_hosting_service
         self._git_profile_dumper = git_profile_dumper
         self._user_raw_data = None
@@ -86,6 +95,7 @@ class GitProfileProcessor:
         """
         try:
             self._git_hosting_service.user_name = self.user_name
+            self._git_hosting_service.access_token = self.access_token
             user_repositories = (
                 self._git_hosting_service.get_repositories_list()
             )
