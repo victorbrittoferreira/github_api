@@ -11,7 +11,7 @@ from src.use_cases.github_profile_processor import GitProfileProcessor
 logger = logging.getLogger(__name__)
 
 
-def extract_github_user_profile(user_name: str) -> None:
+def extract_github_user_profile(user_name: str, access_token: str) -> None:
     """
     Extracts the profile data of a GitHub user using the GitProfileProcessor
     class and writes it to a file using the GitProfileDumperToFile class. It
@@ -37,7 +37,7 @@ def extract_github_user_profile(user_name: str) -> None:
     github_client = GitHubClient()
     git_profile_dumper_to_file = GitProfileDumperToFile()
     git_profile_processor = GitProfileProcessor(
-        user_name, github_client, git_profile_dumper_to_file
+        user_name,  access_token, github_client, git_profile_dumper_to_file,
     )
     try:
         _execute_profile_extraction(git_profile_processor)
