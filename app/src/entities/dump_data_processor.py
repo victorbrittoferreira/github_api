@@ -61,13 +61,12 @@ class GitProfileDumperToFile(GitProfileDataDumperInterface):
                     "following"
                 ],
                 "repositories_name_list": [
-                    repository["name"]
-                    for repository in self.user_raw_data.user_repositories.repositories
+                    repository_instance.repository['name']
+                    for repository_instance in self.user_raw_data.user_repositories.repositories
                 ],
             }
             validaded_user_summary = FilteredData(user_summary)
             self._user_profile_data_extracted = validaded_user_summary
-
         except Exception as error:  # pylint: disable=W0718
             logger.exception(
                 "failed_extracting_profile",
@@ -88,14 +87,14 @@ class GitProfileDumperToFile(GitProfileDataDumperInterface):
             A .txt file will be created with user data in a dict structure.
         """
         try:
-            profile_to_dump = self._user_profile_data_extracted
+            profile_to_dump = asdict(self._user_profile_data_extracted)
             user_name = (
-                f"{profile_to_dump.data['name'].lower().replace(' ', '')}"
+                f"{profile_to_dump['data']['name'].lower().replace(' ', '')}"
             )
             file_name = os.path.join("./", f"{user_name}.txt")
 
             with open(file_name, "w", encoding="utf-8") as _file:
-                _file.write(str(asdict(profile_to_dump)))
+                _file.write(str(profile_to_dump['data']))
 
         except OSError as error:
             logger.exception(

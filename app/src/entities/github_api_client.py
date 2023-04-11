@@ -58,8 +58,9 @@ class GitHubClient(GitHostingCloudClientInterface):
 
     _BASE_URL = "https://api.github.com/users"
 
-    def __init__(self, user_name: str = None) -> None:
+    def __init__(self, user_name: str = None, access_token: str = None) -> None:
         self.user_name = user_name
+        self.access_token = access_token
         self._user_basic_data = None
         self._user_repositories = None
 
@@ -73,6 +74,7 @@ class GitHubClient(GitHostingCloudClientInterface):
     @staticmethod
     def _request_user_profile_data(
         url: str,
+        access_token
     ) -> UserRepositories | UserBasicData:
         """
         Sends an HTTP GET request to the specified URL and returns the response
@@ -99,9 +101,14 @@ class GitHubClient(GitHostingCloudClientInterface):
         attempts = 3
         for attempt in range(1, attempts):
             try:
-                response = requests.get(url, timeout=10)
+                headers = {
+                    "Authorization": f"Bearer {access_token}"
+                }
+
+                response = requests.get(url, headers=headers, timeout=15)
                 if response.status_code == 200:
                     raw_data = response.json()
+                    break
 
                 if (
                     response.status_code == 403
@@ -149,7 +156,7 @@ class GitHubClient(GitHostingCloudClientInterface):
         """
         try:
             user_basic_raw_data = self._request_user_profile_data(
-                self.user_url
+                self.user_url, self.access_token
             )
             validated_user_basic_raw_data = UserBasicData(user_basic_raw_data)
             self._user_basic_data = validated_user_basic_raw_data
@@ -181,7 +188,8 @@ class GitHubClient(GitHostingCloudClientInterface):
         """
         url = f"{self._BASE_URL}/{self.user_name}/repos"
         try:
-            user_repositories_raw_data = self._request_user_profile_data(url)
+            user_repositories_raw_data = self._request_user_profile_data(
+                url, self.access_token)
             valited_user_repositories_raw_data = UserRepositories(
                 user_repositories_raw_data
             )
