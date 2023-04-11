@@ -1,21 +1,20 @@
+from dataclasses import asdict
 import json
 import os.path
 
-from src.main import pursuit_profile
+from src.main import extract_github_user_profile
 
 
-def test_successfully_pursuit_profile(
-    valid_username, valid_input_write_github_user_file
+def test_successfully_extract_github_user_profile(
+    valid_username, valided_filtered_data, github_personal_access_token_
 ):
     # Test that the function has expected behavior.
-    pursuit_profile(valid_username)
+    extract_github_user_profile(valid_username, github_personal_access_token_)
 
-    with open(f"{valid_username}.txt", "r") as f:
-        data_loaded = f.read()
+    with open(f"{valid_username}.txt", "r", encoding="utf-8") as file:
+        data_loaded = file.read()
         data_dicted = json.loads(data_loaded.replace("'", '"'))
 
-        del valid_input_write_github_user_file["login"]
-
-        assert data_dicted == valid_input_write_github_user_file
+        assert data_dicted == asdict(valided_filtered_data)['data']
 
     os.remove(f"{valid_username}.txt")
