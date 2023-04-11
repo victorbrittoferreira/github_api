@@ -127,7 +127,7 @@ def test_empty_repositories():
 # ------------------------------ GroupedUserData ---------------------------
 def test_valid_grouped_user_data():
     """
-    Test creating a valid GroupedUserData object with valid UserBasicData and 
+    Test creating a valid GroupedUserData object with valid UserBasicData and
     UserRepositories objects.
     """
     user_basic_data = UserBasicData(

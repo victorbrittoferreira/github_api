@@ -1,12 +1,15 @@
 # from requests.exceptions import HTTPError
 
-from src.schemas.git_profile import UserBasicData, UserRepositories
-from src.entities.github_api_client import GitHubClient
 from dataclasses import is_dataclass
+
+from src.entities.github_api_client import GitHubClient
+from src.schemas.git_profile import UserBasicData, UserRepositories
 
 
 # -------------------- GitHubClient.get_repositories_list()) ------------------------
-def test_get_repositories_list_returns_list(valid_username, github_personal_access_token_):
+def test_get_repositories_list_returns_list(
+    valid_username, github_personal_access_token_
+):
     # Test that the method valid data structure
     github_client = GitHubClient(valid_username, github_personal_access_token_)
     user_data = github_client.get_repositories_list()
@@ -21,19 +24,25 @@ def test_expected_return_get_repositories_list(
     github_client = GitHubClient(valid_username, github_personal_access_token_)
 
     user_repositories_list = github_client.get_repositories_list()
-    username = user_repositories_list.repositories[0].repository['full_name'].split(
-        "/")[0]
+    username = (
+        user_repositories_list.repositories[0]
+        .repository["full_name"]
+        .split("/")[0]
+    )
 
-    repository_name = user_repositories_list.repositories[0].repository['name']
+    repository_name = user_repositories_list.repositories[0].repository["name"]
 
     assert username == valid_username
 
     any(repository_name in i.values() for i in repositories[0])
 
+
 # -------------------- GitHubClient.get_user_data() --------------------------------
 
 
-def test_get_user_data_returns_dict(valid_username, github_personal_access_token_):
+def test_get_user_data_returns_dict(
+    valid_username, github_personal_access_token_
+):
     # Test that the method valid data structure
     github_client = GitHubClient(valid_username, github_personal_access_token_)
     user_data = github_client.get_user_basic_data()
@@ -41,7 +50,9 @@ def test_get_user_data_returns_dict(valid_username, github_personal_access_token
     assert is_dataclass(user_data)
 
 
-def test_expected_return_get_user_data(valid_username, github_personal_access_token_, valid_username_id):
+def test_expected_return_get_user_data(
+    valid_username, github_personal_access_token_, valid_username_id
+):
     # Test that the method return correct username basic profile data
     github_client = GitHubClient(valid_username, github_personal_access_token_)
 

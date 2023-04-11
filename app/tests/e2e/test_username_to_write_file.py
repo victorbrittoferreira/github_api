@@ -1,6 +1,6 @@
-from dataclasses import asdict
 import json
 import os.path
+from dataclasses import asdict
 
 from src.main import extract_github_user_profile
 
@@ -15,6 +15,6 @@ def test_successfully_extract_github_user_profile(
         data_loaded = file.read()
         data_dicted = json.loads(data_loaded.replace("'", '"'))
 
-        assert data_dicted == asdict(valided_filtered_data)['data']
+        assert data_dicted == asdict(valided_filtered_data)["data"]
 
     os.remove(f"{valid_username}.txt")

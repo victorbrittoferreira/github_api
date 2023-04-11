@@ -1,9 +1,15 @@
 import pytest
+
+from config import ConfigApp
 from src.entities.dump_data_processor import GitProfileDumperToFile
 from src.entities.github_api_client import GitHubClient
-from config import ConfigApp
-
-from src.schemas.git_profile import FilteredData, GroupedUserData, Repository, UserBasicData, UserRepositories
+from src.schemas.git_profile import (
+    FilteredData,
+    GroupedUserData,
+    Repository,
+    UserBasicData,
+    UserRepositories,
+)
 
 invalid_basic_types = [
     "string",
@@ -49,46 +55,49 @@ def git_profile_dumper_to_file():
 
 @pytest.fixture(scope="function")
 def basic_data_user():
-    return {
-        "name": "Victor Britto Ferreira",
-        "url": "https://api.github.com/users/victorbrittoferreira",
-        "public_repos": 26,
-        "followers": 8,
-        "following": 14,
-    },
+    return (
+        {
+            "name": "Victor Britto Ferreira",
+            "url": "https://api.github.com/users/victorbrittoferreira",
+            "public_repos": 26,
+            "followers": 8,
+            "following": 14,
+        },
+    )
 
 
 @pytest.fixture(scope="function")
 def repositories():
-    return [
-        {"name": "angular_todo_list"},
-        {"name": "asynchronous_python"},
-        {"name": "data_manipulation"},
-        {"name": "django_blog"},
-        {"name": "django_test"},
-        {"name": "DRF_API_test"},
-        {"name": "easy-mask"},
-        {"name": "exc-isquicha-training"},
-        {"name": "fastapi_store"},
-        {"name": "fast_api"},
-        {"name": "fast_api_clothes_store"},
-        {"name": "github_api"},
-        {"name": "im_bank"},
-        {"name": "interview_test"},
-        {"name": "JOSE-PORTILLA"},
-        {"name": "jsReload"},
-        {"name": "mechanical-keyboard"},
-        {"name": "newMoshJsBeginner"},
-        {"name": "pandas"},
-        {"name": "product_hunt"},
-        {"name": "PY-STDY"},
-        {"name": "requests-futures"},
-        {"name": "spreadsheet_db"},
-        {"name": "web_encoder"},
-        {"name": "Word-Counter"},
-        {"name": "wordcount_project"},
-
-    ],
+    return (
+        [
+            {"name": "angular_todo_list"},
+            {"name": "asynchronous_python"},
+            {"name": "data_manipulation"},
+            {"name": "django_blog"},
+            {"name": "django_test"},
+            {"name": "DRF_API_test"},
+            {"name": "easy-mask"},
+            {"name": "exc-isquicha-training"},
+            {"name": "fastapi_store"},
+            {"name": "fast_api"},
+            {"name": "fast_api_clothes_store"},
+            {"name": "github_api"},
+            {"name": "im_bank"},
+            {"name": "interview_test"},
+            {"name": "JOSE-PORTILLA"},
+            {"name": "jsReload"},
+            {"name": "mechanical-keyboard"},
+            {"name": "newMoshJsBeginner"},
+            {"name": "pandas"},
+            {"name": "product_hunt"},
+            {"name": "PY-STDY"},
+            {"name": "requests-futures"},
+            {"name": "spreadsheet_db"},
+            {"name": "web_encoder"},
+            {"name": "Word-Counter"},
+            {"name": "wordcount_project"},
+        ],
+    )
 
 
 @pytest.fixture(scope="function")
@@ -128,7 +137,6 @@ def data_grouped():
             {"name": "web_encoder"},
             {"name": "Word-Counter"},
             {"name": "wordcount_project"},
-
         ],
     )
 
@@ -169,13 +177,13 @@ def grouped_user_data():
         {"name": "web_encoder"},
         {"name": "Word-Counter"},
         {"name": "wordcount_project"},
-
     ]
     validated_basic_data_user = UserBasicData(basic_data_user)
 
     validated_repositories = UserRepositories(repositories)
     grouped_user_data_ = GroupedUserData(
-        validated_basic_data_user, validated_repositories)
+        validated_basic_data_user, validated_repositories
+    )
 
     return grouped_user_data_
 
@@ -215,14 +223,12 @@ def filtered_data():
             "web_encoder",
             "Word-Counter",
             "wordcount_project",
-
         ],
     }
 
 
 @pytest.fixture(scope="function")
 def valided_filtered_data():
-
     filtered_data = {
         "name": "Victor Britto Ferreira",
         "url": "https://api.github.com/users/victorbrittoferreira",
@@ -256,7 +262,6 @@ def valided_filtered_data():
             "web_encoder",
             "Word-Counter",
             "wordcount_project",
-
         ],
     }
     valided_filtered_data_ = FilteredData(filtered_data)
