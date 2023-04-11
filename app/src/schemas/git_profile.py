@@ -17,7 +17,6 @@ class UserBasicData:
 @dataclass
 class Repository:
     repository: Dict[str, str | int | bool | Dict | None | List]
-    # repository: Dict[str, Any]
 
     def __post_init__(self):
         assert isinstance(self.repository, Dict)
@@ -29,13 +28,13 @@ class Repository:
 
 @dataclass
 class UserRepositories:
-    repositories: List[Repository]
+    repositories: List[Dict[str, str | int | bool | Dict | None | List]]
 
-    def __post_init__(self):
-        assert isinstance(self.repositories, List)
+    def __init__(self, repositories):
+        assert isinstance(repositories, List), "repositories must be a list"
         assert all(
-            isinstance(repository_, Dict) for repository_ in self.repositories
-        )
+            isinstance(repo, Dict) for repo in repositories), "each repository must be a dictionary"
+        self.repositories = [Repository(repo) for repo in repositories]
 
 
 @dataclass
